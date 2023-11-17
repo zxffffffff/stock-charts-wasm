@@ -6,13 +6,13 @@
 **
 ****************************************************************************/
 #include "StockChart.h"
-#include <stdio.h>
 #include "View/ChartViewCanvas.h"
 #include "Model/Plugin/PluginIndicator.h"
 #include "ViewModel/Layer/LayerBG.h"
 #include "ViewModel/Layer/LayerStock.h"
 #include "ViewModel/Layer/LayerIndicator.h"
 #include "ViewModel/Layer/LayerCrossLine.h"
+#include <stdio.h>
 
 using namespace StockCharts;
 
@@ -42,6 +42,10 @@ struct StockChartView_p
 {
     HTMLCanvasElement *canvas = nullptr;
     std::shared_ptr<ChartViewCanvas> view;
+
+    char c_drag_flag = '0';
+    double x_drag_last = 0;
+    double y_drag_last = 0;
 
     StockChartView_p() { ++StockChartsWasm::mem_leak_count; }
     ~StockChartView_p() { --StockChartsWasm::mem_leak_count; }
@@ -110,6 +114,7 @@ StockChartModel new_model(const char *stock_data)
             break;
         }
     }
+    p_stock->stock->reverse();
     p_stock->model = std::make_shared<ChartModel>(p_stock->stock);
     return (StockChartModel *)p_stock;
 }
@@ -197,47 +202,7 @@ void resize(StockChartView view, double width, double height)
 {
     printf("%s:%d: %s(width=%.1f height=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, width, height);
     StockChartView_p *p_view = (StockChartView_p *)view;
-    p_view->view->resize(width, height);
-}
-
-EMSCRIPTEN_KEEPALIVE
-void mouseMove(StockChartView view, double x, double y)
-{
-    printf("%s:%d: %s(width=%.1f height=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
-    StockChartView_p *p_view = (StockChartView_p *)view;
-    p_view->view->mouseMove(x, y);
-}
-
-EMSCRIPTEN_KEEPALIVE
-void mouseLeave(StockChartView view)
-{
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
-    StockChartView_p *p_view = (StockChartView_p *)view;
-    p_view->view->mouseLeave();
-}
-
-EMSCRIPTEN_KEEPALIVE
-void mouseDown(StockChartView view, double x, double y)
-{
-    printf("%s:%d: %s(width=%.1f height=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
-    StockChartView_p *p_view = (StockChartView_p *)view;
-    p_view->view->mouseDown(x, y);
-}
-
-EMSCRIPTEN_KEEPALIVE
-void mouseUp(StockChartView view, double x, double y)
-{
-    printf("%s:%d: %s(width=%.1f height=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
-    StockChartView_p *p_view = (StockChartView_p *)view;
-    p_view->view->mouseUp(x, y);
-}
-
-EMSCRIPTEN_KEEPALIVE
-void mouseDoubleClick(StockChartView view, double x, double y)
-{
-    printf("%s:%d: %s(width=%.1f height=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
-    StockChartView_p *p_view = (StockChartView_p *)view;
-    p_view->view->mouseDoubleClick(x, y);
+    p_view->view->onResize(width, height);
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -245,5 +210,83 @@ void keyPress(StockChartView view, const char *key)
 {
     printf("%s:%d: %s(key=%s)\n", __FILE__, __LINE__, __FUNCTION__, key);
     StockChartView_p *p_view = (StockChartView_p *)view;
-    p_view->view->keyPress(key);
+    const char c = key[0];
+    switch (c)
+    {
+    case 'w':
+    case 'W':
+    case '+':
+    case '=':
+        p_view->view->onWheelY(1);
+        break;
+    case 's':
+    case 'S':
+    case '-':
+    case '_':
+        p_view->view->onWheelY(-1);
+        break;
+    case 'a':
+    case 'A':
+        p_view->view->onScrollX(-1);
+        break;
+    case 'd':
+    case 'D':
+        p_view->view->onScrollX(1);
+        break;
+    }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void mouseMove(StockChartView view, double x, double y)
+{
+    // printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
+    StockChartView_p *p_view = (StockChartView_p *)view;
+    p_view->view->onMouseMove(x, y);
+    if (p_view->c_drag_flag == 'x')
+    {
+        double x_offset = x - p_view->x_drag_last;
+        double x_remainder = p_view->view->onScrollX_pix(x_offset);
+        p_view->x_drag_last = x - x_remainder;
+    }
+    else if (p_view->c_drag_flag == 'y')
+    {
+        double y_offset = y - p_view->y_drag_last;
+        double y_remainder = p_view->view->onWheelY_pix(y_offset);
+        p_view->y_drag_last = y - y_remainder;
+    }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void mouseLeave(StockChartView view)
+{
+    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    StockChartView_p *p_view = (StockChartView_p *)view;
+    p_view->view->onMouseLeave();
+}
+
+EMSCRIPTEN_KEEPALIVE
+void mouseDown(StockChartView view, double x, double y)
+{
+    printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
+    StockChartView_p *p_view = (StockChartView_p *)view;
+    const ChartContext &chartCtx = p_view->view->getContext();
+    p_view->c_drag_flag = (chartCtx.rectChart.contains(Point(x, y)) || chartCtx.rectXAxis.contains(Point(x, y))) ? 'x' : 'y';
+    p_view->x_drag_last = x;
+    p_view->y_drag_last = y;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void mouseUp(StockChartView view, double x, double y)
+{
+    printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
+    StockChartView_p *p_view = (StockChartView_p *)view;
+    p_view->c_drag_flag = '0';
+}
+
+EMSCRIPTEN_KEEPALIVE
+void mouseDoubleClick(StockChartView view, double x, double y)
+{
+    printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
+    StockChartView_p *p_view = (StockChartView_p *)view;
+    p_view->view->onDBClick(x, y);
 }

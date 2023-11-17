@@ -56,43 +56,54 @@ window.onbeforeunload = function () {
   Module._global_cleanup();
 };
 
-var myCanvas = document.getElementById("myCanvas")
-
 // window
+print("window", window);
+
 window.addEventListener("resize", function (event) {
-  console.log("resize", event);
+  // console.log("resize", event);
+  if (view) {
+    var myCanvas = document.getElementById("myCanvas")
+    myCanvas.width = window.innerWidth;
+    myCanvas.height = myCanvas.width * 0.618;
+    Module._resize(view, myCanvas.width, myCanvas.height);
+  }
 });
 
-// mouse
+window.addEventListener("keypress", function (event) {
+  // console.log("keypress", event);
+  if (view) {
+    Module._keyPress(view, stringToNewUTF8(event.key))
+  }
+});
+
+// canvas
+var myCanvas = document.getElementById("myCanvas")
+print("myCanvas", myCanvas);
+
 myCanvas.addEventListener("mousemove", function (event) {
-  console.log("mousemove", event);
+  // console.log("mousemove", event);
   if (view) {
     Module._mouseMove(view, event.offsetX, event.offsetY)
-    Module._draw(view);
   }
 });
 
 myCanvas.addEventListener("mousedown", function (event) {
-  console.log("mousedown", event);
+  // console.log("mousedown", event);
   if (view) {
     Module._mouseDown(view, event.offsetX, event.offsetY)
-    Module._draw(view);
   }
 });
 
 myCanvas.addEventListener("mouseup", function (event) {
-  console.log("mouseup", event);
+  // console.log("mouseup", event);
   if (view) {
     Module._mouseUp(view, event.offsetX, event.offsetY)
-    Module._draw(view);
   }
 });
 
-// keyboard
-window.addEventListener("keypress", function (event) {
-  console.log("keypress", event);
+myCanvas.addEventListener("dblclick", function (event) {
+  // console.log("dblclick", event);
   if (view) {
-    Module._keyPress(view, stringToNewUTF8(event.key))
-    Module._draw(view);
+    Module._mouseDoubleClick(view, event.offsetX, event.offsetY)
   }
 });

@@ -22,60 +22,82 @@ public:
         listen(m_vm.get());
     }
 
+    virtual ~ChartViewCanvas() = default;
+
     virtual void on(DataBinding *sender, const std::string &id) override
     {
         if (m_vm.get() == sender)
         {
             fire(id);
-            // TODO update();
+            draw();
         }
     }
 
+public:
+    const ChartProps &getProps() const
+    {
+        return m_vm->getProps();
+    }
+
+    const ChartContext &getContext() const
+    {
+        return m_vm->getContext();
+    }
+
+public:
     void draw()
     {
         PainterCanvas painter(canvas->getContext(canvas, "2d"));
-        painter.fillRect(m_vm->getContext().rectChart, Color("#FFFFFF"));
+        painter.fillRect(m_vm->getContext().rectView, Color("#FFFFFF"));
         m_vm->onPaint(painter);
     }
 
-    void resize(double width, double height)
+    void onResize(double width, double height)
     {
         m_vm->onResize(Rect(0, 0, width, height));
     }
 
-    void mouseMove(double x, double y)
+    void onMouseMove(double x, double y)
     {
         m_vm->onMouseMove(Point(x, y));
     }
 
-    void mouseLeave()
+    void onMouseLeave()
     {
         m_vm->onMouseLeave();
     }
 
-    void mouseDown(double x, double y)
-    {
-    }
-
-    void mouseUp(double x, double y)
-    {
-    }
-
-    void mouseDoubleClick(double x, double y)
+    void onDBClick(double x, double y)
     {
         m_vm->onDBClick(Point(x, y));
     }
 
-    void keyPress(const std::string &key)
+    void onScrollX(int step)
     {
-        if (key == "w" || key == "W" || key == "+" || key == "=")
-            m_vm->onWheelY(1);
-        if (key == "s" || key == "S" || key == "-" || key == "_")
-            m_vm->onWheelY(-1);
-        if (key == "a" || key == "A")
-            m_vm->onScrollX(-1);
-        if (key == "d" || key == "D")
-            m_vm->onScrollX(1);
+        m_vm->onScrollX(step);
+    }
+
+    void onWheelY(int step)
+    {
+        m_vm->onWheelY(step);
+    }
+
+    double onScrollX_pix(double pix)
+    {
+        double base = getContext().nodeWidth;
+        int quotient = pix / base;
+        onScrollX(-quotient);
+        double remainder = fmod(pix, base);
+        return remainder;
+    }
+
+    double onWheelY_pix(double pix)
+    {
+        double base = getProps().wheelYStep;
+        int quotient = pix / base;
+        onWheelY(-quotient);
+        double remainder = fmod(pix, base);
+        return remainder;
     }
 
 private:

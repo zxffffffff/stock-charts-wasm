@@ -29,10 +29,10 @@ extern "C"
     void del_view(StockChartView view);
     void draw(StockChartView view);
     void resize(StockChartView view, double width, double height);
+    void keyPress(StockChartView view, const char *key);
     void mouseMove(StockChartView view, double x, double y);
     void mouseLeave(StockChartView view);
     void mouseDown(StockChartView view, double x, double y);
     void mouseUp(StockChartView view, double x, double y);
     void mouseDoubleClick(StockChartView view, double x, double y);
-    void keyPress(StockChartView view, const char *key);
 }
