@@ -16,21 +16,10 @@ using namespace StockCharts;
 class ChartViewCanvas : public DataBinding
 {
 public:
-    ChartViewCanvas(HTMLCanvasElement *canvas)
-        : canvas(canvas)
+    ChartViewCanvas(std::shared_ptr<ChartViewModel> vm, HTMLCanvasElement *canvas)
+        : m_vm(vm), canvas(canvas)
     {
-    }
-
-    void init(std::shared_ptr<ChartViewModel> vm)
-    {
-        m_vm = vm;
         listen(m_vm.get());
-    }
-
-    void draw()
-    {
-        PainterCanvas painter(canvas->getContext(canvas, "2d"));
-        m_vm->onPaint(painter);
     }
 
     virtual void on(DataBinding *sender, const std::string &id) override
@@ -42,7 +31,54 @@ public:
         }
     }
 
+    void draw()
+    {
+        PainterCanvas painter(canvas->getContext(canvas, "2d"));
+        painter.fillRect(m_vm->getContext().rectChart, Color("#FFFFFF"));
+        m_vm->onPaint(painter);
+    }
+
+    void resize(double width, double height)
+    {
+        m_vm->onResize(Rect(0, 0, width, height));
+    }
+
+    void mouseMove(double x, double y)
+    {
+        m_vm->onMouseMove(Point(x, y));
+    }
+
+    void mouseLeave()
+    {
+        m_vm->onMouseLeave();
+    }
+
+    void mouseDown(double x, double y)
+    {
+    }
+
+    void mouseUp(double x, double y)
+    {
+    }
+
+    void mouseDoubleClick(double x, double y)
+    {
+        m_vm->onDBClick(Point(x, y));
+    }
+
+    void keyPress(const std::string &key)
+    {
+        if (key == "w" || key == "W" || key == "+" || key == "=")
+            m_vm->onWheelY(1);
+        if (key == "s" || key == "S" || key == "-" || key == "_")
+            m_vm->onWheelY(-1);
+        if (key == "a" || key == "A")
+            m_vm->onScrollX(-1);
+        if (key == "d" || key == "D")
+            m_vm->onScrollX(1);
+    }
+
 private:
-    HTMLCanvasElement *canvas;
     std::shared_ptr<ChartViewModel> m_vm;
+    HTMLCanvasElement *canvas;
 };
