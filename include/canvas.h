@@ -64,9 +64,11 @@ struct CanvasRenderingContext2D
         char contextType[19];
         char *font;
         char *textAlign;
+        char *textBaseline;
         char *fillStyle;
         char *strokeStyle;
         char *lineCap;
+        char *lineDash;
         char *lineJoin;
         char *globalCompositeOperation;
     } _private;
@@ -82,12 +84,16 @@ struct CanvasRenderingContext2D
     double (*getLineWidth)(CanvasRenderingContext2D *_this);
     void (*setLineCap)(CanvasRenderingContext2D *_this, char *type);
     char *(*getLineCap)(CanvasRenderingContext2D *_this);
+    void (*setLineDash)(CanvasRenderingContext2D *_this, char *pattern);
+    char *(*getLineDash)(CanvasRenderingContext2D *_this);
     void (*setLineJoin)(CanvasRenderingContext2D *_this, char *type);
     char *(*getLineJoin)(CanvasRenderingContext2D *_this);
     char *(*getFont)(CanvasRenderingContext2D *_this);
     void (*setFont)(CanvasRenderingContext2D *_this, char *value);
     void (*setTextAlign)(CanvasRenderingContext2D *_this, char *value);
     char *(*getTextAlign)(CanvasRenderingContext2D *_this);
+    void (*setTextBaseline)(CanvasRenderingContext2D *_this, char *value);
+    char *(*getTextBaseline)(CanvasRenderingContext2D *_this);
     void (*setFillStyle)(CanvasRenderingContext2D *_this, char *value);
     char *(*getFillStyle)(CanvasRenderingContext2D *_this);
     void (*setStrokeStyle)(CanvasRenderingContext2D *_this, char *value);
