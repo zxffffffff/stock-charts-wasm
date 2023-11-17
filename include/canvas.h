@@ -184,6 +184,8 @@ struct HTMLCanvasElement
      * The field retrieved by this getter function behaves like a singleton. 
      */
     CanvasRenderingContext2D *(*getContext)(HTMLCanvasElement *_this, char *contextType);
+
+    char* (*getId)(HTMLCanvasElement *_this);
 };
 
 /**
@@ -209,7 +211,7 @@ struct HTMLCanvasElement
  *     int width = sameOldCanvas->getWidth(sameOldCanvas);
  *     freeCanvas(sameOldCanvas);
  */
-HTMLCanvasElement *createCanvas(char *name);
+HTMLCanvasElement *createCanvas(char *id);
 
 /**
  * Frees the dynamically allocated HTMLCanvasElement and any dynamically allocated
