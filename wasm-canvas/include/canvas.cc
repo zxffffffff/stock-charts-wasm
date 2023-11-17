@@ -159,6 +159,30 @@ static char *context2d_getLineCap(CanvasRenderingContext2D *_this)
                                                  _this->_private.canvas->_private.id);
     return _this->_private.lineCap;
 }
+static void context2d_setLineDash(CanvasRenderingContext2D *_this, char *pattern)
+{
+    EM_ASM({
+        var string = UTF8ToString($1);
+        var numbers = string.split(',').map(i => Number(i));
+        document.getElementById(UTF8ToString($0)).getContext('2d').setLineDash(numbers);
+    },
+           _this->_private.canvas->_private.id, pattern);
+}
+static char *context2d_getLineDash(CanvasRenderingContext2D *_this)
+{
+    if (_this->_private.lineDash)
+        free(_this->_private.lineDash);
+    _this->_private.lineDash = (char *)EM_ASM_INT({
+        var numbers = document.getElementById(UTF8ToString($0)).getContext('2d').getLineDash();
+        var string = numbers.map(i => i.toString()).join(',');
+        var strlen = lengthBytesUTF8(string) + 1;
+        var strptr = _malloc(strlen);
+        stringToUTF8(string, strptr, strlen);
+        return strptr;
+    },
+                                                 _this->_private.canvas->_private.id);
+    return _this->_private.lineDash;
+}
 static void context2d_setLineJoin(CanvasRenderingContext2D *_this, char *type)
 {
     EM_ASM({
@@ -219,6 +243,27 @@ static void context2d_setTextAlign(CanvasRenderingContext2D *_this, char *value)
 {
     EM_ASM({
         document.getElementById(UTF8ToString($0)).getContext('2d').textAlign = UTF8ToString($1);
+    },
+           _this->_private.canvas->_private.id, value);
+}
+static char *context2d_getTextBaseline(CanvasRenderingContext2D *_this)
+{
+    if (_this->_private.textBaseline)
+        free(_this->_private.textBaseline);
+    _this->_private.textBaseline = (char *)EM_ASM_INT({
+        var string = document.getElementById(UTF8ToString($0)).getContext('2d').textBaseline;
+        var strlen = lengthBytesUTF8(string) + 1;
+        var strptr = _malloc(strlen);
+        stringToUTF8(string, strptr, strlen);
+        return strptr;
+    },
+                                                   _this->_private.canvas->_private.id);
+    return _this->_private.textBaseline;
+}
+static void context2d_setTextBaseline(CanvasRenderingContext2D *_this, char *value)
+{
+    EM_ASM({
+        document.getElementById(UTF8ToString($0)).getContext('2d').textBaseline = UTF8ToString($1);
     },
            _this->_private.canvas->_private.id, value);
 }
@@ -476,9 +521,11 @@ static CanvasRenderingContext2D *createContext(HTMLCanvasElement *canvas, char *
     strcpy(ctx->_private.contextType, contextType); // string field is a static length, no need to allocate
     ctx->_private.font = NULL;
     ctx->_private.textAlign = NULL;
+    ctx->_private.textBaseline = NULL;
     ctx->_private.fillStyle = NULL;
     ctx->_private.strokeStyle = NULL;
     ctx->_private.lineCap = NULL;
+    ctx->_private.lineDash = NULL;
     ctx->_private.lineJoin = NULL;
     ctx->_private.globalCompositeOperation = NULL;
     /* End: set pseudo-private fields */
@@ -491,12 +538,16 @@ static CanvasRenderingContext2D *createContext(HTMLCanvasElement *canvas, char *
     ctx->getLineWidth = context2d_getLineWidth;
     ctx->setLineCap = context2d_setLineCap;
     ctx->getLineCap = context2d_getLineCap;
+    ctx->setLineDash = context2d_setLineDash;
+    ctx->getLineDash = context2d_getLineDash;
     ctx->setLineJoin = context2d_setLineJoin;
     ctx->getLineJoin = context2d_getLineJoin;
     ctx->setFont = context2d_setFont;
     ctx->getFont = context2d_getFont;
     ctx->setTextAlign = context2d_setTextAlign;
     ctx->getTextAlign = context2d_getTextAlign;
+    ctx->setTextBaseline = context2d_setTextBaseline;
+    ctx->getTextBaseline = context2d_getTextBaseline;
     ctx->setFillStyle = context2d_setFillStyle;
     ctx->getFillStyle = context2d_getFillStyle;
     ctx->setStrokeStyle = context2d_setStrokeStyle;
@@ -543,12 +594,16 @@ void freeCanvas(HTMLCanvasElement *canvas)
                 free(canvas->_private.ctx->_private.font);
             if (canvas->_private.ctx->_private.textAlign)
                 free(canvas->_private.ctx->_private.textAlign);
+            if (canvas->_private.ctx->_private.textBaseline)
+                free(canvas->_private.ctx->_private.textBaseline);
             if (canvas->_private.ctx->_private.fillStyle)
                 free(canvas->_private.ctx->_private.fillStyle);
             if (canvas->_private.ctx->_private.strokeStyle)
                 free(canvas->_private.ctx->_private.strokeStyle);
             if (canvas->_private.ctx->_private.lineCap)
                 free(canvas->_private.ctx->_private.lineCap);
+            if (canvas->_private.ctx->_private.lineDash)
+                free(canvas->_private.ctx->_private.lineDash);
             if (canvas->_private.ctx->_private.lineJoin)
                 free(canvas->_private.ctx->_private.lineJoin);
             if (canvas->_private.ctx->_private.globalCompositeOperation)
