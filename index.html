@@ -8,14 +8,12 @@
 </head>
 
 <body>
-    <h1>stock-charts-wasm</h1>
-    <h2>基于 C++ WASM 实现股票图表和技术指标（模仿富途），提供 Web HTML 实现。</h2>
-
-    <p>1. 移动k线: 点击k线左右拖动，或按下'a','d'按键</p>
-    <p>2. 缩放k线: 点击y轴上下拖动，或按线'w','s','+','-'按键</p>
+    <p>1. 移动k线: 点击k线左右拖动，或按下 A D 按键</p>
+    <p>2. 缩放k线: 点击y轴上下拖动，或按线 W S + - 按键</p>
     <p>3. 鼠标十字线: 双击切换显示/隐藏</p>
 
-    <canvas id="myCanvas" width="618" height="382"></canvas>
+    <canvas id="mainChart" width="600" height="250"></canvas>
+    <canvas id="subChart" width="600" height="250"></canvas>
 
     <script src="./build/stockchart.js"></script>
     <script src="./index.js"></script>

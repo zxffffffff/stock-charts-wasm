@@ -12,6 +12,7 @@
 #include "ViewModel/Layer/LayerStock.h"
 #include "ViewModel/Layer/LayerIndicator.h"
 #include "ViewModel/Layer/LayerCrossLine.h"
+#include "ViewModel/Layer/LayerTitle.h"
 #include <stdio.h>
 
 using namespace StockCharts;
@@ -20,6 +21,14 @@ namespace StockChartsWasm
 {
     std::atomic<int> mem_leak_count = 0;
 }
+
+struct StockChartCore_p
+{
+    std::shared_ptr<StockCore> stock;
+
+    StockChartCore_p() { ++StockChartsWasm::mem_leak_count; }
+    ~StockChartCore_p() { --StockChartsWasm::mem_leak_count; }
+};
 
 struct StockChartModel_p
 {
@@ -67,12 +76,12 @@ void global_cleanup()
 }
 
 EMSCRIPTEN_KEEPALIVE
-StockChartModel new_model(const char *stock_data)
+StockChartCore new_stock(const char *stock)
 {
-    printf("%s:%d: %s(input=%s)\n", __FILE__, __LINE__, __FUNCTION__, stock_data);
-    StockChartModel_p *p_stock = new StockChartModel_p;
+    printf("%s:%d: %s(%s)\n", __FILE__, __LINE__, __FUNCTION__, stock);
+    StockChartCore_p *p_stock = new StockChartCore_p;
     p_stock->stock = std::make_shared<StockCore>();
-    const std::vector<std::string> list = Utils::splitStr(stock_data, '\n');
+    const std::vector<std::string> list = Utils::splitStr(stock, '\n');
     for (int i = 0; i < list.size(); ++i)
     {
         std::vector<std::string> s_core = Utils::splitStr(list[i], ',');
@@ -114,9 +123,34 @@ StockChartModel new_model(const char *stock_data)
             break;
         }
     }
+    return p_stock;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void reverse_stock(StockChartCore stock)
+{
+    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    StockChartCore_p *p_stock = (StockChartCore_p *)stock;
     p_stock->stock->reverse();
-    p_stock->model = std::make_shared<ChartModel>(p_stock->stock);
-    return (StockChartModel *)p_stock;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void del_stock(StockChartCore stock)
+{
+    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    StockChartCore_p *p_stock = (StockChartCore_p *)stock;
+    delete p_stock;
+}
+
+EMSCRIPTEN_KEEPALIVE
+StockChartModel new_model(StockChartCore stock)
+{
+    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    StockChartCore_p *p_stock = (StockChartCore_p *)stock;
+    StockChartModel_p *p_model = new StockChartModel_p;
+    p_model->stock = p_stock->stock;
+    p_model->model = std::make_shared<ChartModel>(p_stock->stock);
+    return p_model;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -137,13 +171,34 @@ void add_plugin(StockChartModel model, const char *type)
 }
 
 EMSCRIPTEN_KEEPALIVE
+void add_indicator(StockChartModel model, const char *name, const char *expression, const char *params)
+{
+    printf("%s:%d: %s(name=%s, expression=%s, params=%s)\n", __FILE__, __LINE__, __FUNCTION__, name, expression, params);
+    StockChartModel_p *p_model = (StockChartModel_p *)model;
+    IndexFormula formular;
+    formular.name = name;
+    formular.expression = expression;
+    const std::vector<std::string> list = Utils::splitStr(params, '\n');
+    for (int i = 0; i < list.size(); ++i)
+    {
+        std::vector<std::string> param = Utils::splitStr(list[i], ',');
+        if (param.size() == 2)
+        {
+            formular.params[param[0]] = atoi(param[1].c_str());
+        }
+    }
+    if (auto pluginIndicator = p_model->model->getPlugin<PluginIndicator>())
+        pluginIndicator->addIndicator(formular);
+}
+
+EMSCRIPTEN_KEEPALIVE
 StockChartViewModel new_vm(StockChartModel model)
 {
     printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartModel_p *p_model = (StockChartModel_p *)model;
     StockChartViewModel_p *p_vm = new StockChartViewModel_p;
     p_vm->vm = std::make_shared<ChartViewModel>(p_model->model);
-    return (StockChartViewModel *)p_vm;
+    return p_vm;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -167,6 +222,21 @@ void add_layer(StockChartViewModel vm, const char *type)
         p_vm->vm->addLayer<LayerIndicator>();
     else if (strcmp(type, "LayerCrossLine") == 0)
         p_vm->vm->addLayer<LayerCrossLine>();
+    else if (strcmp(type, "LayerTitle") == 0)
+        p_vm->vm->addLayer<LayerTitle>(ChartTitleItemFlagStock | ChartTitleItemFlagIndicator);
+    else if (strcmp(type, "LayerTitle_Stock") == 0)
+        p_vm->vm->addLayer<LayerTitle>(ChartTitleItemFlagStock);
+    else if (strcmp(type, "LayerTitle_Indicator") == 0)
+        p_vm->vm->addLayer<LayerTitle>(ChartTitleItemFlagIndicator);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void set_sync_other(StockChartViewModel vm, StockChartViewModel other)
+{
+    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    StockChartViewModel_p *p_vm = (StockChartViewModel_p *)vm;
+    StockChartViewModel_p *p_other = (StockChartViewModel_p *)other;
+    p_vm->vm->setSyncOther(p_other->vm.get());
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -177,7 +247,7 @@ StockChartView new_view(StockChartViewModel vm, const char *canvas_id)
     StockChartView_p *p_view = new StockChartView_p;
     p_view->canvas = createCanvas((char *)canvas_id);
     p_view->view = std::make_shared<ChartViewCanvas>(p_vm->vm, p_view->canvas);
-    return (StockChartView *)p_view;
+    return p_view;
 }
 
 EMSCRIPTEN_KEEPALIVE

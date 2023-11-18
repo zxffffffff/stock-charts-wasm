@@ -10,6 +10,7 @@
 
 extern "C"
 {
+    typedef void *StockChartCore;
     typedef void *StockChartModel;
     typedef void *StockChartViewModel;
     typedef void *StockChartView;
@@ -17,13 +18,19 @@ extern "C"
     void global_init();
     void global_cleanup();
 
-    StockChartModel new_model(const char *stock_data);
+    StockChartCore new_stock(const char *stock_data);
+    void reverse_stock(StockChartCore stock);
+    void del_stock(StockChartCore stock);
+
+    StockChartModel new_model(StockChartCore stock);
     void del_model(StockChartModel model);
     void add_plugin(StockChartModel model, const char *type);
+    void add_indicator(StockChartModel model, const char *name, const char *expression, const char *params);
 
     StockChartViewModel new_vm(StockChartModel model);
     void del_vm(StockChartViewModel vm);
     void add_layer(StockChartViewModel vm, const char *type);
+    void set_sync_other(StockChartViewModel vm, StockChartViewModel other);
 
     StockChartView new_view(StockChartViewModel vm, const char *canvas_id);
     void del_view(StockChartView view);
