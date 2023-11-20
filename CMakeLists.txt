@@ -38,8 +38,8 @@ add_executable(stockchart
 target_include_directories(stockchart PUBLIC ${ALL_INCLUDE})
 
 # 参考：https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
-# -Os                                   优化和减少代码大小（-O0 默认不优化，-O1，-O2 用于生产，-Os，-Oz，-O3）非常影响编译体积！
-# -g4                                   保留llvm调试信息（-g0 用于生产，-g1，-g2，-g3，-g4 全部调试信息）非常影响编译体积！
+# -Os                                   优化和减少代码大小（-O0 默认不优化，-O1，-O2 用于生产，-Os 减少体积，-Oz，-O3 增加体积）非常影响编译体积！
+# -g0                                   保留llvm调试信息（-g0 用于生产，-g1，-g2，-g3，-g4 全部调试信息）非常影响编译体积！
 # --no-entry                            表示没有 main 函数
 # -s MODULARIZE=1                       模块化，影响 Module（默认 0 全局范围），注意会影响加载方式
 # -s WASM_ASYNC_COMPILATION=0           是否异步加载wasm，主线程需要用异步，worker中可以同步加载
@@ -50,7 +50,7 @@ target_include_directories(stockchart PUBLIC ${ALL_INCLUDE})
 # -s EXPORTED_RUNTIME_METHODS           导出 C-API 到 JS-Module
 # -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE   历史原因，类似于 EXPORTED_RUNTIME_METHODS
 # -s NO_EXIT_RUNTIME=1                  执行完main后是否释放模块，有main默认true，无main默认false
-set_target_properties(stockchart PROPERTIES COMPILE_FLAGS "-O0 -g4")
-set_target_properties(stockchart PROPERTIES LINK_FLAGS    "-O0 -g4 --no-entry -s STANDALONE_WASM -s WASM_BIGINT -s EXPORTED_RUNTIME_METHODS=ccall,cwrap -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$stringToNewUTF8")
+set_target_properties(stockchart PROPERTIES COMPILE_FLAGS "-Os -g0")
+set_target_properties(stockchart PROPERTIES LINK_FLAGS    "-Os -g0 --no-entry -s STANDALONE_WASM -s WASM_BIGINT -s EXPORTED_RUNTIME_METHODS=ccall,cwrap,stringToNewUTF8 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$stringToNewUTF8")
 
 message("[stock-charts-wasm] -------- done")
