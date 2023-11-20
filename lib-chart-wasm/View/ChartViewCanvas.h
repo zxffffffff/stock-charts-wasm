@@ -82,22 +82,14 @@ public:
         m_vm->onWheelY(step);
     }
 
-    double onScrollX_pix(double pix)
+    double onScrollX_pix(double pix, bool inverted)
     {
-        double base = getContext().nodeWidth;
-        int quotient = pix / base;
-        onScrollX(-quotient);
-        double remainder = fmod(pix, base);
-        return remainder;
+        return m_vm->onScrollX_pix(pix, inverted);
     }
 
-    double onWheelY_pix(double pix)
+    double onWheelY_pix(double pix, bool inverted)
     {
-        double base = getProps().wheelYStep;
-        int quotient = pix / base;
-        onWheelY(-quotient);
-        double remainder = fmod(pix, base);
-        return remainder;
+        return m_vm->onWheelY_pix(pix, inverted);
     }
 
 private:

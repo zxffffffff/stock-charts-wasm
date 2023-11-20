@@ -315,13 +315,13 @@ void mouseMove(StockChartView view, double x, double y)
     if (p_view->c_drag_flag == 'x')
     {
         double x_offset = x - p_view->x_drag_last;
-        double x_remainder = p_view->view->onScrollX_pix(x_offset);
+        double x_remainder = p_view->view->onScrollX_pix(x_offset, true);
         p_view->x_drag_last = x - x_remainder;
     }
     else if (p_view->c_drag_flag == 'y')
     {
         double y_offset = y - p_view->y_drag_last;
-        double y_remainder = p_view->view->onWheelY_pix(y_offset);
+        double y_remainder = p_view->view->onWheelY_pix(y_offset, true);
         p_view->y_drag_last = y - y_remainder;
     }
 }
