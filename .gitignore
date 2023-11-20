@@ -32,9 +32,9 @@
 *.app
 
 # cpp-deps-vcpkg
-vcpkg_installed
-build
-install
 .vs
-out
 .vscode
+/vcpkg_installed
+/build
+/install
+/out
