@@ -163,8 +163,7 @@ for (var i = 0; i < canvas_ids.length; i++) {
   });
 
   canvas.addEventListener("touchstart", function (event) {
-    console.log("touchstart", event);
-    console.log("event.target", event.target);
+    // console.log("touchstart", event);
     for (var i = 0; i < canvas_ids.length; i++) {
       if (event.target != document.getElementById(canvas_ids[i]))
         continue;
@@ -178,7 +177,7 @@ for (var i = 0; i < canvas_ids.length; i++) {
   });
 
   canvas.addEventListener("touchend", function (event) {
-    console.log("touchend", event);
+    // console.log("touchend", event);
     for (var i = 0; i < canvas_ids.length; i++) {
       if (event.target != document.getElementById(canvas_ids[i]))
         continue;
@@ -192,7 +191,7 @@ for (var i = 0; i < canvas_ids.length; i++) {
   });
 
   canvas.addEventListener("touchmove", function (event) {
-    console.log("touchmove", event);
+    // console.log("touchmove", event);
     for (var i = 0; i < canvas_ids.length; i++) {
       if (event.target != document.getElementById(canvas_ids[i]))
         continue;
