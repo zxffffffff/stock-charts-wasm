@@ -46,6 +46,8 @@ Module.onRuntimeInitialized = function () {
     "LONG,26\n" +
     "M,9";
 
+  const chart_w = window.innerWidth * 0.98;
+  const chart_h = window.innerHeight * 0.4;
   for (var i = 0; i < canvas_ids.length; i++) {
     // model
     models[i] = _new_model(stock);
@@ -76,9 +78,9 @@ Module.onRuntimeInitialized = function () {
     // view
     views[i] = _new_view(vms[i], stringToNewUTF8(canvas_ids[i]));
     var canvas = document.getElementById(canvas_ids[i])
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight * 0.4;
-    _resize(views[i], canvas.width, canvas.height);
+    canvas.width = chart_w;
+    canvas.height = chart_h;
+    _resize(views[i], chart_w, chart_h);
   }
 };
 
@@ -104,12 +106,14 @@ window.onbeforeunload = function () {
 // window
 window.addEventListener("resize", function (event) {
   // console.log("resize", event);
+  const chart_w = window.innerWidth * 0.98;
+  const chart_h = window.innerHeight * 0.4;
   for (var i = 0; i < canvas_ids.length; i++) {
     if (views[i]) {
       var canvas = document.getElementById(canvas_ids[i])
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight * 0.4;
-      _resize(views[i], canvas.width, canvas.height);
+      canvas.width = chart_w;
+      canvas.height = chart_h;
+      _resize(views[i], chart_w, chart_h);
     }
   }
 });
@@ -124,17 +128,6 @@ window.addEventListener("keypress", function (event) {
 // canvas
 for (var i = 0; i < canvas_ids.length; i++) {
   var canvas = document.getElementById(canvas_ids[i])
-
-  canvas.addEventListener("mousemove", function (event) {
-    // console.log("mousemove", event);
-    for (var i = 0; i < canvas_ids.length; i++) {
-      if (event.target != document.getElementById(canvas_ids[i]))
-        continue;
-      if (views[i]) {
-        _mouseMove(views[i], event.offsetX, event.offsetY)
-      }
-    }
-  });
 
   canvas.addEventListener("mousedown", function (event) {
     // console.log("mousedown", event);
@@ -154,6 +147,60 @@ for (var i = 0; i < canvas_ids.length; i++) {
         continue;
       if (views[i]) {
         _mouseUp(views[i], event.offsetX, event.offsetY)
+      }
+    }
+  });
+
+  canvas.addEventListener("mousemove", function (event) {
+    // console.log("mousemove", event);
+    for (var i = 0; i < canvas_ids.length; i++) {
+      if (event.target != document.getElementById(canvas_ids[i]))
+        continue;
+      if (views[i]) {
+        _mouseMove(views[i], event.offsetX, event.offsetY)
+      }
+    }
+  });
+
+  canvas.addEventListener("touchstart", function (event) {
+    console.log("touchstart", event);
+    console.log("event.target", event.target);
+    for (var i = 0; i < canvas_ids.length; i++) {
+      if (event.target != document.getElementById(canvas_ids[i]))
+        continue;
+      if (views[i]) {
+        event.preventDefault();
+        _mouseDown(views[i],
+          event.changedTouches[0].clientX - event.target.getBoundingClientRect().left,
+          event.changedTouches[0].clientY - event.target.getBoundingClientRect().top)
+      }
+    }
+  });
+
+  canvas.addEventListener("touchend", function (event) {
+    console.log("touchend", event);
+    for (var i = 0; i < canvas_ids.length; i++) {
+      if (event.target != document.getElementById(canvas_ids[i]))
+        continue;
+      if (views[i]) {
+        event.preventDefault();
+        _mouseUp(views[i],
+          event.changedTouches[0].clientX - event.target.getBoundingClientRect().left,
+          event.changedTouches[0].clientY - event.target.getBoundingClientRect().top)
+      }
+    }
+  });
+
+  canvas.addEventListener("touchmove", function (event) {
+    console.log("touchmove", event);
+    for (var i = 0; i < canvas_ids.length; i++) {
+      if (event.target != document.getElementById(canvas_ids[i]))
+        continue;
+      if (views[i]) {
+        event.preventDefault();
+        _mouseMove(views[i],
+          event.changedTouches[0].clientX - event.target.getBoundingClientRect().left,
+          event.changedTouches[0].clientY - event.target.getBoundingClientRect().top)
       }
     }
   });
