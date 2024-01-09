@@ -1,3 +1,6 @@
+#!/bin/sh
+
+rm -rf docs
 mkdir -p docs
 mkdir -p docs/build
 
