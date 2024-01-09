@@ -19,7 +19,7 @@ var views = [null, null];
 
 // init
 Module.onRuntimeInitialized = function () {
-  console.log("onRuntimeInitialized", Module);
+  // console.log("onRuntimeInitialized", Module);
 
   _global_init()
 
@@ -86,7 +86,7 @@ Module.onRuntimeInitialized = function () {
 
 // quit
 window.onbeforeunload = function () {
-  console.log("onbeforeunload");
+  // console.log("onbeforeunload");
 
   views.map(function (view) {
     _del_view(view);

@@ -63,22 +63,24 @@ struct StockChartView_p
 EMSCRIPTEN_KEEPALIVE
 void global_init()
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartsWasm::mem_leak_count = 0;
 }
 
 EMSCRIPTEN_KEEPALIVE
 void global_cleanup()
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     if (StockChartsWasm::mem_leak_count != 0)
-        printf("Error: mem_leak_count:%d\n", (int)StockChartsWasm::mem_leak_count);
+    {
+        // printf("Error: mem_leak_count:%d\n", (int)StockChartsWasm::mem_leak_count);
+    }
 }
 
 EMSCRIPTEN_KEEPALIVE
 StockChartCore new_stock(const char *stock)
 {
-    printf("%s:%d: %s(%s)\n", __FILE__, __LINE__, __FUNCTION__, stock);
+    // printf("%s:%d: %s(%s)\n", __FILE__, __LINE__, __FUNCTION__, stock);
     StockChartCore_p *p_stock = new StockChartCore_p;
     p_stock->stock = std::make_shared<StockCore>();
     const std::vector<std::string> list = Utils::splitStr(stock, '\n');
@@ -129,7 +131,7 @@ StockChartCore new_stock(const char *stock)
 EMSCRIPTEN_KEEPALIVE
 void reverse_stock(StockChartCore stock)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartCore_p *p_stock = (StockChartCore_p *)stock;
     p_stock->stock->reverse();
 }
@@ -137,7 +139,7 @@ void reverse_stock(StockChartCore stock)
 EMSCRIPTEN_KEEPALIVE
 void del_stock(StockChartCore stock)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartCore_p *p_stock = (StockChartCore_p *)stock;
     delete p_stock;
 }
@@ -145,7 +147,7 @@ void del_stock(StockChartCore stock)
 EMSCRIPTEN_KEEPALIVE
 StockChartModel new_model(StockChartCore stock)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartCore_p *p_stock = (StockChartCore_p *)stock;
     StockChartModel_p *p_model = new StockChartModel_p;
     p_model->stock = p_stock->stock;
@@ -156,7 +158,7 @@ StockChartModel new_model(StockChartCore stock)
 EMSCRIPTEN_KEEPALIVE
 void del_model(StockChartModel model)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartModel_p *p_model = (StockChartModel_p *)model;
     delete p_model;
 }
@@ -164,7 +166,7 @@ void del_model(StockChartModel model)
 EMSCRIPTEN_KEEPALIVE
 void add_plugin(StockChartModel model, const char *type)
 {
-    printf("%s:%d: %s(type=%s)\n", __FILE__, __LINE__, __FUNCTION__, type);
+    // printf("%s:%d: %s(type=%s)\n", __FILE__, __LINE__, __FUNCTION__, type);
     StockChartModel_p *p_model = (StockChartModel_p *)model;
     if (strcmp(type, "PluginIndicator") == 0)
         p_model->model->addPlugin<PluginIndicator>();
@@ -173,7 +175,7 @@ void add_plugin(StockChartModel model, const char *type)
 EMSCRIPTEN_KEEPALIVE
 void add_indicator(StockChartModel model, const char *name, const char *expression, const char *params)
 {
-    printf("%s:%d: %s(name=%s, expression=%s, params=%s)\n", __FILE__, __LINE__, __FUNCTION__, name, expression, params);
+    // printf("%s:%d: %s(name=%s, expression=%s, params=%s)\n", __FILE__, __LINE__, __FUNCTION__, name, expression, params);
     StockChartModel_p *p_model = (StockChartModel_p *)model;
     IndexFormula formular;
     formular.name = name;
@@ -194,7 +196,7 @@ void add_indicator(StockChartModel model, const char *name, const char *expressi
 EMSCRIPTEN_KEEPALIVE
 StockChartViewModel new_vm(StockChartModel model)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartModel_p *p_model = (StockChartModel_p *)model;
     StockChartViewModel_p *p_vm = new StockChartViewModel_p;
     p_vm->vm = std::make_shared<ChartViewModel>(p_model->model);
@@ -204,7 +206,7 @@ StockChartViewModel new_vm(StockChartModel model)
 EMSCRIPTEN_KEEPALIVE
 void del_vm(StockChartViewModel vm)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartViewModel_p *p_vm = (StockChartViewModel_p *)vm;
     delete p_vm;
 }
@@ -212,7 +214,7 @@ void del_vm(StockChartViewModel vm)
 EMSCRIPTEN_KEEPALIVE
 void add_layer(StockChartViewModel vm, const char *type)
 {
-    printf("%s:%d: %s(type=%s)\n", __FILE__, __LINE__, __FUNCTION__, type);
+    // printf("%s:%d: %s(type=%s)\n", __FILE__, __LINE__, __FUNCTION__, type);
     StockChartViewModel_p *p_vm = (StockChartViewModel_p *)vm;
     if (strcmp(type, "LayerBG") == 0)
         p_vm->vm->addLayer<LayerBG>();
@@ -233,7 +235,7 @@ void add_layer(StockChartViewModel vm, const char *type)
 EMSCRIPTEN_KEEPALIVE
 void set_sync_other(StockChartViewModel vm, StockChartViewModel other)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartViewModel_p *p_vm = (StockChartViewModel_p *)vm;
     StockChartViewModel_p *p_other = (StockChartViewModel_p *)other;
     p_vm->vm->setSyncOther(p_other->vm.get());
@@ -242,7 +244,7 @@ void set_sync_other(StockChartViewModel vm, StockChartViewModel other)
 EMSCRIPTEN_KEEPALIVE
 StockChartView new_view(StockChartViewModel vm, const char *canvas_id)
 {
-    printf("%s:%d: %s(canvas_id=%s)\n", __FILE__, __LINE__, __FUNCTION__, canvas_id);
+    // printf("%s:%d: %s(canvas_id=%s)\n", __FILE__, __LINE__, __FUNCTION__, canvas_id);
     StockChartViewModel_p *p_vm = (StockChartViewModel_p *)vm;
     StockChartView_p *p_view = new StockChartView_p;
     p_view->canvas = createCanvas((char *)canvas_id);
@@ -253,7 +255,7 @@ StockChartView new_view(StockChartViewModel vm, const char *canvas_id)
 EMSCRIPTEN_KEEPALIVE
 void del_view(StockChartView view)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartView_p *p_view = (StockChartView_p *)view;
     freeCanvas(p_view->canvas);
     delete p_view;
@@ -262,7 +264,7 @@ void del_view(StockChartView view)
 EMSCRIPTEN_KEEPALIVE
 void draw(StockChartView view)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartView_p *p_view = (StockChartView_p *)view;
     p_view->view->draw();
 }
@@ -270,7 +272,7 @@ void draw(StockChartView view)
 EMSCRIPTEN_KEEPALIVE
 void resize(StockChartView view, double width, double height)
 {
-    printf("%s:%d: %s(width=%.1f height=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, width, height);
+    // printf("%s:%d: %s(width=%.1f height=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, width, height);
     StockChartView_p *p_view = (StockChartView_p *)view;
     p_view->view->onResize(width, height);
 }
@@ -278,7 +280,7 @@ void resize(StockChartView view, double width, double height)
 EMSCRIPTEN_KEEPALIVE
 void keyPress(StockChartView view, const char *key)
 {
-    printf("%s:%d: %s(key=%s)\n", __FILE__, __LINE__, __FUNCTION__, key);
+    // printf("%s:%d: %s(key=%s)\n", __FILE__, __LINE__, __FUNCTION__, key);
     StockChartView_p *p_view = (StockChartView_p *)view;
     const char c = key[0];
     switch (c)
@@ -329,7 +331,7 @@ void mouseMove(StockChartView view, double x, double y)
 EMSCRIPTEN_KEEPALIVE
 void mouseLeave(StockChartView view)
 {
-    printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
+    // printf("%s:%d: %s\n", __FILE__, __LINE__, __FUNCTION__);
     StockChartView_p *p_view = (StockChartView_p *)view;
     p_view->view->onMouseLeave();
 }
@@ -337,7 +339,7 @@ void mouseLeave(StockChartView view)
 EMSCRIPTEN_KEEPALIVE
 void mouseDown(StockChartView view, double x, double y)
 {
-    printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
+    // printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
     StockChartView_p *p_view = (StockChartView_p *)view;
     const ChartContext &chartCtx = p_view->view->getContext();
     p_view->c_drag_flag = (chartCtx.rectChart.contains(Point(x, y)) || chartCtx.rectXAxis.contains(Point(x, y))) ? 'x' : 'y';
@@ -348,7 +350,7 @@ void mouseDown(StockChartView view, double x, double y)
 EMSCRIPTEN_KEEPALIVE
 void mouseUp(StockChartView view, double x, double y)
 {
-    printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
+    // printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
     StockChartView_p *p_view = (StockChartView_p *)view;
     p_view->c_drag_flag = '0';
 }
@@ -356,7 +358,7 @@ void mouseUp(StockChartView view, double x, double y)
 EMSCRIPTEN_KEEPALIVE
 void mouseDoubleClick(StockChartView view, double x, double y)
 {
-    printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
+    // printf("%s:%d: %s(x=%.1f y=%.1f)\n", __FILE__, __LINE__, __FUNCTION__, x, y);
     StockChartView_p *p_view = (StockChartView_p *)view;
     p_view->view->onDBClick(x, y);
 }
