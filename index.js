@@ -6,18 +6,31 @@
 **
 ****************************************************************************/
 
-Module.locateFile = function (path, prefix) {
-  if (path.endsWith(".wasm")) return "./build/" + path;
-  return prefix + path;
-};
-
 var canvas_ids = ["mainChart", "subChart"];
+
+// loading
+function canvasLoading() {
+  // console.log("canvasLoading");
+  for (var i = 0; i < canvas_ids.length; i++) {
+    var canvas = document.getElementById(canvas_ids[i]);
+    var ctx = canvas.getContext("2d");
+    ctx.font = "48px serif";
+    ctx.fillText("Loading...", 10, 50);
+  }
+}
+canvasLoading();
+
+// init
 var stock;
 var models = [null, null];
 var vms = [null, null];
 var views = [null, null];
 
-// init
+Module.locateFile = function (path, prefix) {
+  if (path.endsWith(".wasm")) return "./build/" + path;
+  return prefix + path;
+};
+
 Module.onRuntimeInitialized = function () {
   // console.log("onRuntimeInitialized", Module);
 
