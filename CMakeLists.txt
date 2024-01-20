@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # 使用 emsdk 工具链，需要在 project 之前设置
 # set(CMAKE_TOOLCHAIN_FILE "C:/Users/xiaofeng.zhu/Documents/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
-set(CMAKE_TOOLCHAIN_FILE "/Users/zhuxiaofeng/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
+set(CMAKE_TOOLCHAIN_FILE "/Volumes/Colorful_4T/ZXF/PATH/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
 message(STATUS "[stock-charts-wasm] CMAKE_TOOLCHAIN_FILE : ${CMAKE_TOOLCHAIN_FILE}")
 
 project ("stock-charts-wasm")
@@ -23,7 +23,7 @@ message(STATUS "[stock-charts-wasm] CMAKE_CURRENT_SOURCE_DIR : ${CMAKE_CURRENT_S
 
 set(ALL_INCLUDE
     # "C:/Users/xiaofeng.zhu/Documents/emsdk/upstream/emscripten/cache/sysroot/include" # emsdk
-    "/Users/zhuxiaofeng/emsdk/upstream/emscripten/cache/sysroot/include" # emsdk
+    "/Volumes/Colorful_4T/ZXF/PATH/emsdk/upstream/emscripten/cache/sysroot/include" # emsdk
     ${CMAKE_CURRENT_SOURCE_DIR}/stock-charts-cpp/lib-chart
     ${CMAKE_CURRENT_SOURCE_DIR}/wasm-canvas/include
     ${CMAKE_CURRENT_SOURCE_DIR}/lib-chart-wasm
